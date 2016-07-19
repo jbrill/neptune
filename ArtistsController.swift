@@ -9,7 +9,8 @@
 import UIKit
 import Alamofire
 
-func <(a:MyArtist, b:MyArtist) -> Bool{
+
+func <(a:MyArtist, b:MyArtist) -> Bool {
     if(a.playCount < b.playCount){
         return true
     }
@@ -60,17 +61,13 @@ class ArtistsController : WebService {
     static var sharedInstance:ArtistsController = ArtistsController()
     let myKey:String = "a658bb1ac88d31aaacb4038f7589f694"
     
-    let artist1 = ArtistEntry(namein: "Dr. Dre", recsin: 12, imgin: UIImage(named: "drake")!)
-    let artist2 = ArtistEntry(namein: "Rihanna", recsin: 8, imgin: UIImage(named: "drake")!)
-    let artist3 = ArtistEntry(namein: "Red Hot Chili Peppers", recsin: 6, imgin: UIImage(named: "drake")!)
-    let artist4 = ArtistEntry(namein: "Four Tet", recsin: 4, imgin: UIImage(named: "drake")!)
-    let artist5 = ArtistEntry(namein: "Burial", recsin: 6, imgin: UIImage(named: "drake")!)
+//    let artist1 = ArtistEntry(namein: "Dr. Dre", recsin: "Dr Dre", imgin: UIImage(named: "drake")!)
+//    let artist2 = ArtistEntry(namein: "Rihanna", recsin: "Dr Dre", imgin: UIImage(named: "drake")!)
+//    let artist3 = ArtistEntry(namein: "Red Hot Chili Peppers", recsin: "Dr Dre", imgin: UIImage(named: "drake")!)
+//    let artist4 = ArtistEntry(namein: "Four Tet", recsin: "Dr Dre", imgin: UIImage(named: "drake")!)
+//    let artist5 = ArtistEntry(namein: "Burial", recsin: "Dr Dre", imgin: UIImage(named: "drake")!)
     
-    var myArtists:[ArtistEntry]? {
-        get {
-            return [artist1, artist2, artist3, artist4, artist5]
-        }
-    }
+    var myArtists:[ArtistEntry] = []
     
     var originalArtists:[MyArtist] = []
     
@@ -79,36 +76,50 @@ class ArtistsController : WebService {
         originalArtists = originalArtists.reverse()
     }
     
-    func makeCalls(onCompletion: (MyArtist?, String?) -> Void){
-        for artist in originalArtists{
-            
-            
-            let myCall: String = "https://ws.audioscrobbler.com/2.0/"
-            
-            let request = Alamofire.request(.GET,
-                                            myCall,
-                                            parameters: ["method":"artist.getsimilar",
-                                                         "artist":artist.artistName,
-                                                         "api_key":myKey,
-                                                         "format":"json"],
-                                            encoding: .URLEncodedInURL,
-                                            headers: [:])
-            
-                print("HERE FOR \(request)")
-                self.executeRequest(request, requestCompletionFunction: {responseCode, json in
-                    print(responseCode)
-                    if (responseCode / 100 == 2) {
-                        //do stuff
-                        print(json["similarartists"])
-                        onCompletion(artist, nil)
-                        return
-                    } else {
-                        let errorMessage = json["errors"]["full_messages"][0].stringValue
+    func makeCalls(onCompletion: (ArtistEntry?, String?) -> Void){
+        //for artist in originalArtists{
+        let artist = originalArtists[0]
+        
+        let parameters = ["method":"artist.getsimilar",
+         "artist":artist.artistName,
+         "api_key":myKey,
+         "format":"json"]
+ 
+        let request = self.createMutableAnonRequest(NSURL(string: "https://ws.audioscrobbler.com/2.0/"), method: "GET", parameters: parameters)
+        
+            self.executeRequest(request, requestCompletionFunction: {responseCode, json in
+                print("MY RESP CODE \(responseCode)")
+                if (responseCode / 100 == 2) {
+                    //do stuff
+                    var counter:Int = 0
+                    for newArtist in json["similarartists"]["artist"]{
+                        if(counter == 5){
+                            break
+                        }
                         
-                        onCompletion(nil,errorMessage)
-                        return
+                        let name = newArtist.1["name"].stringValue
+                        let imgURL = newArtist.1["image"][3]["#text"].stringValue
+                        
+                        /*Alamofire.request(.GET, NSURL(string: imgURL.stringValue)!).response { (request, response, data, error) in
+                            if let img = UIImage(data: data!, scale:1) {
+                                
+                            }
+                        }*/
+                        let tempArtist:ArtistEntry = ArtistEntry(namein: name, recsin: artist, imgin: imgURL)
+                        onCompletion(tempArtist, nil)
+                        
+                        counter += 1
                     }
-                })
-        }
+                    
+                    print("here")
+                    return
+                } else {
+                    let errorMessage = json["errors"]["full_messages"][0].stringValue
+                    
+                    onCompletion(nil,errorMessage)
+                    return
+                }
+            })
+        //}
     }
 }

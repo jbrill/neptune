@@ -9,6 +9,7 @@
 import UIKit
 import MediaPlayer
 import Alamofire
+import SwiftyJSON
 
 struct MyArtist {
     let artistName:String
@@ -39,16 +40,26 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         artistTable.registerNib(UINib(nibName: "TableViewCell", bundle: nil), forCellReuseIdentifier: "Identifier")
         
         let myArtists = MPMediaQuery.artistsQuery().items
-        
+//        
+//        let request = Alamofire.request(.GET,
+//                                        "https://ws.audioscrobbler.com/2.0",
+//                                        parameters: nil,
+//                                        encoding: .URL,
+//                                        headers: [:])
+//        
+//        request.responseJSON { data in
+//            print(data)
+//        }
+//        
         beginCalls(myArtists!)
-        
         ArtistsController.sharedInstance.makeCalls({ artist, message in
-                if(message == nil){
-                    print("Call unsuccessful")
-                }
-            })
+            if(message == nil){
+                //call successful
+                ArtistsController.sharedInstance.myArtists.append(artist!)
+            }
+        })
     }
-
+    
     func beginCalls(artists:[MPMediaItem]){
         var counter:Int = 0
 
@@ -73,7 +84,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
 
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         //return myStrings.count;
-        return ArtistsController.sharedInstance.myArtists!.count
+        return ArtistsController.sharedInstance.myArtists.count
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
@@ -81,9 +92,9 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         
         let cell = tableView.dequeueReusableCellWithIdentifier(identifier, forIndexPath: indexPath) as! TableViewCell
         
-        cell.myTitle.text = ArtistsController.sharedInstance.myArtists![indexPath.row].name
-        cell.myRecs.text = ("Based off \(ArtistsController.sharedInstance.myArtists![indexPath.row].recs) similar artists")
-        cell.myImage = UIImageView(image: ArtistsController.sharedInstance.myArtists![indexPath.row].img)
+        cell.myTitle.text = ArtistsController.sharedInstance.myArtists[indexPath.row].name
+        cell.myRecs.text = ("Based off \(ArtistsController.sharedInstance.myArtists[indexPath.row].recs.count) similar artists")
+        cell.myImage = UIImageView(image: ArtistsController.sharedInstance.myArtists[indexPath.row].img)
         
         return cell
     }

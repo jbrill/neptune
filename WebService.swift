@@ -1,4 +1,4 @@
-//
+
 //  WebService.swift
 //  NoughtsAndCrosses
 //
@@ -42,7 +42,7 @@ class WebService {
         urlRequest.responseJSON { returnedData -> Void in  //execute the request and give us JSON response data
             //the web service is now done. Remove the loading overlay
             //presentingViewController?.removeLoadingOverlay()
-            print(returnedData.data)
+            //print(returnedData.data)
             //Handle the response from the web service
             let success = returnedData.result.isSuccess
             if (success)    {

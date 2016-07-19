@@ -31,7 +31,7 @@ class TableViewCell: UITableViewCell {
         myImage.layer.cornerRadius = myImage.frame.height/2
         myImage.clipsToBounds = true
         
-        applyHoverShadow(myImage)
+        //applyHoverShadow(myImage)
     }
 
     override func setSelected(selected: Bool, animated: Bool) {
@@ -40,20 +40,20 @@ class TableViewCell: UITableViewCell {
         // Configure the view for the selected state
     }
     
-    
-    func applyHoverShadow(view: UIView) {
-        let size = view.bounds.size
-        let width = size.width
-        let height = size.height
-        
-        let ovalRect = CGRect(x: 5, y: height + 5, width: width - 10, height: 15)
-        let path = UIBezierPath(roundedRect: ovalRect, cornerRadius: 10)
-        
-        let layer = view.layer
-        layer.shadowPath = path.CGPath
-        layer.shadowColor = UIColor.blackColor().CGColor
-        layer.shadowOpacity = 0.2
-        layer.shadowRadius = 5
-        layer.shadowOffset = CGSize(width: 2, height: 2)
-    }
+//    
+//    func applyHoverShadow(view: UIView) {
+//        let size = view.bounds.size
+//        let width = size.width
+//        let height = size.height
+//        
+//        let ovalRect = CGRect(x: 5, y: height + 5, width: width - 10, height: 15)
+//        let path = UIBezierPath(roundedRect: ovalRect, cornerRadius: 10)
+//        
+//        let layer = view.layer
+//        layer.shadowPath = path.CGPath
+//        layer.shadowColor = UIColor.blackColor().CGColor
+//        layer.shadowOpacity = 0.2
+//        layer.shadowRadius = 5
+//        layer.shadowOffset = CGSize(width: 2, height: 2)
+//    }
 }

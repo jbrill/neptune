@@ -10,12 +10,16 @@ import UIKit
 
 class ArtistEntry: NSObject {
     var name:String
-    var recs:Int
-    var img:UIImage
+    var recs:[MyArtist]
+    var img:String
     
-    init(namein:String, recsin:Int, imgin:UIImage){
+    init(namein:String, recsin:MyArtist, imgin:String){
         name = namein
-        recs = recsin
+        recs = [recsin]
         img = imgin
+    }
+    
+    func pushRec(recIn:MyArtist){
+        recs.append(recIn)
     }
 }
