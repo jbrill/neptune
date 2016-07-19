@@ -22,10 +22,6 @@
             <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <tableView hidden="YES" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="8XL-gR-omd">
-                    <rect key="frame" x="0.0" y="123" width="600" height="477"/>
-                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                </tableView>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="NEPTUNE" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="none" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Drp-VG-GoV">
                     <rect key="frame" x="154" y="35" width="293" height="42"/>
                     <rect key="contentStretch" x="1" y="0.0" width="1" height="1"/>
@@ -39,11 +35,21 @@
                     <color key="shadowColor" red="0.0" green="0.0" blue="0.0" alpha="0.14999999999999999" colorSpace="calibratedRGB"/>
                     <size key="shadowOffset" width="0.0" height="0.0"/>
                 </label>
+                <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" style="plain" separatorStyle="default" rowHeight="75" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="8XL-gR-omd">
+                    <rect key="frame" x="0.0" y="105" width="600" height="495"/>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                    <color key="separatorColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                    <color key="sectionIndexBackgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                </tableView>
             </subviews>
             <color key="backgroundColor" red="0.25098039215686274" green="0.25098039215686274" blue="0.25098039215686274" alpha="1" colorSpace="calibratedRGB"/>
             <constraints>
+                <constraint firstAttribute="bottom" secondItem="8XL-gR-omd" secondAttribute="bottom" id="Jc2-Du-23a"/>
+                <constraint firstItem="8XL-gR-omd" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" id="eqs-m4-x4N"/>
                 <constraint firstItem="Drp-VG-GoV" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" constant="35" id="gcI-eE-Xji"/>
                 <constraint firstItem="Drp-VG-GoV" firstAttribute="centerX" secondItem="i5M-Pr-FkT" secondAttribute="centerX" id="j2v-zQ-1Kp"/>
+                <constraint firstItem="8XL-gR-omd" firstAttribute="top" secondItem="Drp-VG-GoV" secondAttribute="bottom" constant="28" id="pDM-JV-k7c"/>
+                <constraint firstAttribute="trailing" secondItem="8XL-gR-omd" secondAttribute="trailing" id="y0P-QN-nVr"/>
             </constraints>
         </view>
     </objects>

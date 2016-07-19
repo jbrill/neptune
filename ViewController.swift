@@ -7,6 +7,21 @@
 //
 
 import UIKit
+import MediaPlayer
+import Alamofire
+
+struct MyArtist {
+    let artistName:String
+    let playCount:Int
+    //can add other stuff later
+}
+
+func ==(a:MPMediaItem, b:MPMediaItem) -> Bool{
+    if(a.artist == b.artist){
+        return true
+    }
+    return false
+}
 
 class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     @IBOutlet weak var artistTable: UITableView!
@@ -14,26 +29,51 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
 
     override func viewDidLoad() {
         super.viewDidLoad()
-//        titleLabel.textColor = UIColor.sand2()
         
         let attributedString = titleLabel.attributedText as! NSMutableAttributedString
         attributedString.addAttribute(NSKernAttributeName, value: 8.8, range: NSMakeRange(0, attributedString.length))
         titleLabel.attributedText = attributedString
-        // Do any additional setup after loading the view.
         
         artistTable.delegate = self
         artistTable.dataSource = self
+        artistTable.registerNib(UINib(nibName: "TableViewCell", bundle: nil), forCellReuseIdentifier: "Identifier")
+        
+        let myArtists = MPMediaQuery.artistsQuery().items
+        
+        beginCalls(myArtists!)
+        
+        ArtistsController.sharedInstance.makeCalls({ artist, message in
+                if(message == nil){
+                    print("Call unsuccessful")
+                }
+            })
     }
 
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+    func beginCalls(artists:[MPMediaItem]){
+        var counter:Int = 0
+
+        while(counter != artists.count - 1){
+//            print(artists[counter].artist)
+//            print(counter)
+//            print("MY COUNT: \(artists.count)")
+            while(artists[counter] == artists[counter + 1]){
+                if(counter == artists.count - 2){
+                    break
+                }
+                counter += 1
+            }//while we have same artist
+            if let artistName = artists[counter].artist {
+                let myNewArtistObj = MyArtist(artistName: artists[counter].artist!, playCount: artists[counter].playCount)
+                ArtistsController.sharedInstance.originalArtists.append(myNewArtistObj)
+            }
+            
+            counter += 1
+        }
     }
-    
 
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         //return myStrings.count;
-        return ArtistsController.sharedInstance.myArtists.count
+        return ArtistsController.sharedInstance.myArtists!.count
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
@@ -41,9 +81,9 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         
         let cell = tableView.dequeueReusableCellWithIdentifier(identifier, forIndexPath: indexPath) as! TableViewCell
         
-        cell.myTitle.text = ArtistsController.sharedInstance.myArtists[indexPath.row].name
-        cell.myRecs.text = ("Based off \(ArtistsController.sharedInstance.myArtists[indexPath.row].recs) similar artists")
-        cell.myImage = UIImageView(image: ArtistsController.sharedInstance.myArtists[indexPath.row].img)
+        cell.myTitle.text = ArtistsController.sharedInstance.myArtists![indexPath.row].name
+        cell.myRecs.text = ("Based off \(ArtistsController.sharedInstance.myArtists![indexPath.row].recs) similar artists")
+        cell.myImage = UIImageView(image: ArtistsController.sharedInstance.myArtists![indexPath.row].img)
         
         return cell
     }
@@ -53,6 +93,11 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
     
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        //present view!
+        
+        tableView.deselectRowAtIndexPath(indexPath, animated: true)
+        
+        let artistView:ArtistViewController = ArtistViewController(nibName: "ArtistViewController", bundle: nil)
+        artistView.modalPresentationStyle = .OverFullScreen
+        self.presentViewController(artistView, animated: true, completion: nil)
     }
 }
