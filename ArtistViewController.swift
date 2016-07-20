@@ -10,6 +10,9 @@ import UIKit
 
 class ArtistViewController: UIViewController {
     @IBOutlet weak var myImage: UIImageView!
+    @IBOutlet weak var myTitle: UILabel!
+    @IBOutlet weak var myRecs: UILabel!
+    @IBOutlet weak var myDesc: UILabel!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -19,6 +22,13 @@ class ArtistViewController: UIViewController {
         myImage.clipsToBounds = true
         
         //applyHoverShadow(myImage)
+        let attributedString = myTitle.attributedText as! NSMutableAttributedString
+        attributedString.addAttribute(NSKernAttributeName, value: 0.74, range: NSMakeRange(0, attributedString.length))
+        myTitle.attributedText = attributedString
+        
+        let attributedString2 = myRecs.attributedText as! NSMutableAttributedString
+        attributedString2.addAttribute(NSKernAttributeName, value: 0.34, range: NSMakeRange(0, attributedString2.length))
+        myRecs.attributedText = attributedString2
 
         // Do any additional setup after loading the view.
     }

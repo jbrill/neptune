@@ -23,7 +23,7 @@
                 <rect key="frame" x="0.0" y="0.0" width="320" height="74"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="drake" highlighted="YES" translatesAutoresizingMaskIntoConstraints="NO" id="hi1-gY-c6G">
+                    <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" highlighted="YES" translatesAutoresizingMaskIntoConstraints="NO" id="hi1-gY-c6G">
                         <rect key="frame" x="15" y="8" width="58" height="58"/>
                         <color key="backgroundColor" red="0.33333333333333331" green="0.33333333333333331" blue="0.33333333333333331" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
@@ -102,7 +102,4 @@
             <point key="canvasLocation" x="305" y="399.5"/>
         </tableViewCell>
     </objects>
-    <resources>
-        <image name="drake" width="321" height="400"/>
-    </resources>
 </document>

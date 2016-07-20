@@ -19,6 +19,13 @@ class ArtistEntry: NSObject {
         img = imgin
     }
     
+    override func isEqual(object: AnyObject?) -> Bool {
+        if let rhs = object as? ArtistEntry {
+            return self.name == rhs.name
+        }
+        return false
+    }
+    
     func pushRec(recIn:MyArtist){
         recs.append(recIn)
     }

@@ -31,7 +31,65 @@ func ==(a:MyArtist, b:MyArtist) -> Bool{
     return false
 }
 
+func magicAlgo(artistIn:ArtistEntry) -> Double{
+    var plays:Int = 0
+    for rec in artistIn.recs{
+        plays += rec.playCount
+    }
+    
+    let myDec:Double = Double(plays) / Double(ArtistsController.sharedInstance.totalPlays)
+    
+    return myDec * Double(artistIn.recs.count)
+}
+
+func <(a:ArtistEntry, b:ArtistEntry) -> Bool {
+    if(magicAlgo(a) < magicAlgo(b)){
+        return true
+    }
+    return false
+}
+
+func >(a:ArtistEntry, b:ArtistEntry) -> Bool{
+    if(magicAlgo(a) > magicAlgo(b)){
+        return true
+    }
+    return false
+}
+
+func ==(a:ArtistEntry, b:ArtistEntry) -> Bool{
+    if(magicAlgo(a) == magicAlgo(b)){
+        return true
+    }
+    return false
+}
+
 func quicksort_swift(inout a:[MyArtist], start:Int, end:Int) {
+    if (end - start < 2){
+        return
+    }
+    let p = a[start + (end - start)/2]
+    var l = start
+    var r = end - 1
+    while (l <= r){
+        if (a[l] < p){
+            l += 1
+            continue
+        }
+        if (a[r] > p){
+            r -= 1
+            continue
+        }
+        let t = a[l]
+        a[l] = a[r]
+        a[r] = t
+        l += 1
+        r -= 1
+    }
+    quicksort_swift(&a, start: start, end: r + 1)
+    quicksort_swift(&a, start: r + 1, end: end)
+}
+
+func quicksort_swift(inout a:[ArtistEntry], start:Int, end:Int) {
     if (end - start < 2){
         return
     }
@@ -61,34 +119,44 @@ class ArtistsController : WebService {
     static var sharedInstance:ArtistsController = ArtistsController()
     let myKey:String = "a658bb1ac88d31aaacb4038f7589f694"
     
-//    let artist1 = ArtistEntry(namein: "Dr. Dre", recsin: "Dr Dre", imgin: UIImage(named: "drake")!)
-//    let artist2 = ArtistEntry(namein: "Rihanna", recsin: "Dr Dre", imgin: UIImage(named: "drake")!)
-//    let artist3 = ArtistEntry(namein: "Red Hot Chili Peppers", recsin: "Dr Dre", imgin: UIImage(named: "drake")!)
-//    let artist4 = ArtistEntry(namein: "Four Tet", recsin: "Dr Dre", imgin: UIImage(named: "drake")!)
-//    let artist5 = ArtistEntry(namein: "Burial", recsin: "Dr Dre", imgin: UIImage(named: "drake")!)
-    
     var myArtists:[ArtistEntry] = []
     
     var originalArtists:[MyArtist] = []
+    var totalPlays:Int = 0
+    
+    //var myTime:Int = 0
     
     func sortArtists(){
         quicksort_swift(&originalArtists, start: 0, end: originalArtists.count)
         originalArtists = originalArtists.reverse()
     }
     
-    func makeCalls(onCompletion: (ArtistEntry?, String?) -> Void){
-        //for artist in originalArtists{
-        let artist = originalArtists[0]
-        
-        let parameters = ["method":"artist.getsimilar",
-         "artist":artist.artistName,
-         "api_key":myKey,
-         "format":"json"]
- 
-        let request = self.createMutableAnonRequest(NSURL(string: "https://ws.audioscrobbler.com/2.0/"), method: "GET", parameters: parameters)
-        
+    func sortArtistsNew(){
+        quicksort_swift(&myArtists, start: 0, end: myArtists.count)
+        myArtists = myArtists.reverse()
+    }
+    
+//    @objc func update() {
+//        myTime += 1
+//    }
+    
+    func makeCalls(onCompletion: (MyArtist?, ArtistEntry?, String?) -> Void){
+//        var timer = NSTimer.scheduledTimerWithTimeInterval(0.4, target: self, selector: #selector(self.update), userInfo: nil, repeats: true)
+        for artist in originalArtists{
+            
+//            
+//            if(myTime >= 10){
+//                break
+//            }
+            
+            let parameters = ["method":"artist.getsimilar",
+                              "artist":artist.myName,
+                              "api_key":myKey,
+                              "format":"json"]
+            
+            let request = self.createMutableAnonRequest(NSURL(string: "https://ws.audioscrobbler.com/2.0/"), method: "GET", parameters: parameters)
+            
             self.executeRequest(request, requestCompletionFunction: {responseCode, json in
-                print("MY RESP CODE \(responseCode)")
                 if (responseCode / 100 == 2) {
                     //do stuff
                     var counter:Int = 0
@@ -100,26 +168,24 @@ class ArtistsController : WebService {
                         let name = newArtist.1["name"].stringValue
                         let imgURL = newArtist.1["image"][3]["#text"].stringValue
                         
-                        /*Alamofire.request(.GET, NSURL(string: imgURL.stringValue)!).response { (request, response, data, error) in
-                            if let img = UIImage(data: data!, scale:1) {
-                                
-                            }
-                        }*/
                         let tempArtist:ArtistEntry = ArtistEntry(namein: name, recsin: artist, imgin: imgURL)
-                        onCompletion(tempArtist, nil)
-                        
+                        onCompletion(artist, tempArtist, nil)
+                        self.sortArtistsNew()
                         counter += 1
                     }
                     
-                    print("here")
-                    return
+                    onCompletion(artist, nil,nil)
                 } else {
                     let errorMessage = json["errors"]["full_messages"][0].stringValue
                     
-                    onCompletion(nil,errorMessage)
+                    onCompletion(artist, nil,errorMessage)
                     return
                 }
             })
-        //}
+        }
+        
+        onCompletion(nil, nil,nil)
     }
+    
+    
 }

@@ -11,14 +11,35 @@ import MediaPlayer
 import Alamofire
 import SwiftyJSON
 
-struct MyArtist {
-    let artistName:String
+class MyArtist : NSObject {
+    override func isEqual(object: AnyObject?) -> Bool {
+        if let rhs = object as? MyArtist {
+            return self.myName == rhs.myName
+        }
+        return false
+    }
+    
+    init (nameIn:String, countIn:Int){
+        myName = nameIn
+        playCount = countIn
+    }
+    
+    var myName:String
     let playCount:Int
     //can add other stuff later
 }
 
+
+
 func ==(a:MPMediaItem, b:MPMediaItem) -> Bool{
-    if(a.artist == b.artist){
+    if let name = a.artist?.lowercaseString, let name2 = b.artist?.lowercaseString {
+        return name == name2
+    }
+    return false
+}
+
+func ==(a:MyArtist, b:ArtistEntry) -> Bool{
+    if(a.myName.lowercaseString == b.name.lowercaseString){
         return true
     }
     return false
@@ -40,24 +61,31 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         artistTable.registerNib(UINib(nibName: "TableViewCell", bundle: nil), forCellReuseIdentifier: "Identifier")
         
         let myArtists = MPMediaQuery.artistsQuery().items
-//        
-//        let request = Alamofire.request(.GET,
-//                                        "https://ws.audioscrobbler.com/2.0",
-//                                        parameters: nil,
-//                                        encoding: .URL,
-//                                        headers: [:])
-//        
-//        request.responseJSON { data in
-//            print(data)
-//        }
-//        
+        
         beginCalls(myArtists!)
-        ArtistsController.sharedInstance.makeCalls({ artist, message in
-            if(message == nil){
-                //call successful
-                ArtistsController.sharedInstance.myArtists.append(artist!)
-            }
+        ArtistsController.sharedInstance.sortArtists()
+        
+        ArtistsController.sharedInstance.makeCalls({ originalArtist, newArtist, message in
+                if(newArtist == nil && message == nil){
+                    self.artistTable.reloadData()
+                } else if (newArtist != nil && message == nil){ //if we do have a new artist!!
+                    let tempArtist = MyArtist(nameIn: newArtist!.name, countIn: 0)
+                    if ArtistsController.sharedInstance.originalArtists.contains(tempArtist){
+                        self.artistTable.reloadData()
+                    } else if let index = ArtistsController.sharedInstance.myArtists.indexOf(newArtist!){ //check if new artist is already a new artist
+                        ArtistsController.sharedInstance.myArtists[index].pushRec(originalArtist!)
+                        
+                    } else {
+                        ArtistsController.sharedInstance.myArtists.append(newArtist!)
+                    }
+                    
+                } else {
+                    print(message!)
+                    //ERROR. Make alert?
+                }
         })
+        
+        
     }
     
     func beginCalls(artists:[MPMediaItem]){
@@ -73,9 +101,10 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                 }
                 counter += 1
             }//while we have same artist
-            if let artistName = artists[counter].artist {
-                let myNewArtistObj = MyArtist(artistName: artists[counter].artist!, playCount: artists[counter].playCount)
+            if let name = artists[counter].artist {
+                let myNewArtistObj = MyArtist(nameIn: name, countIn: artists[counter].playCount)
                 ArtistsController.sharedInstance.originalArtists.append(myNewArtistObj)
+                ArtistsController.sharedInstance.totalPlays += artists[counter].playCount
             }
             
             counter += 1
@@ -94,7 +123,11 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         
         cell.myTitle.text = ArtistsController.sharedInstance.myArtists[indexPath.row].name
         cell.myRecs.text = ("Based off \(ArtistsController.sharedInstance.myArtists[indexPath.row].recs.count) similar artists")
-        cell.myImage = UIImageView(image: ArtistsController.sharedInstance.myArtists[indexPath.row].img)
+        
+         Alamofire.request(.GET, NSURL(string: ArtistsController.sharedInstance.myArtists[indexPath.row].img)!).response { (request, response, data, error) in
+            let myImg = UIImage(data: data!, scale:1)
+            cell.myImage = UIImageView(image: myImg)
+         }
         
         return cell
     }
@@ -108,6 +141,10 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         tableView.deselectRowAtIndexPath(indexPath, animated: true)
         
         let artistView:ArtistViewController = ArtistViewController(nibName: "ArtistViewController", bundle: nil)
+        
+        //artistView.myRecs = ArtistsController.sharedInstance.myArtists[indexPath.row].recs.count
+        //artistView.myTitle.text = ArtistsController.sharedInstance.myArtists[indexPath.row].name
+        
         artistView.modalPresentationStyle = .OverFullScreen
         self.presentViewController(artistView, animated: true, completion: nil)
     }
